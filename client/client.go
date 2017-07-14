@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	c, err := client.New("tcp4", "localhost:8080")
+	c, err := client.New("tcp", ":1234")
 	if err != nil {
 		log.Fatalln(err)
 	}

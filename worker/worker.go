@@ -1,15 +1,19 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 	"strings"
 
 	"github.com/appscode/g2/worker"
+	"github.com/mikespook/golib/signal"
 )
 
 // A function for handling jobs
 func Foobar(job worker.Job) ([]byte, error) {
 	log.Printf("ToUpper: Data=[%s]\n", job.Data())
+	fmt.Println("in foobar")
 	data := []byte(strings.ToUpper(string(job.Data())))
 	return data, nil
 }
@@ -39,7 +43,7 @@ func main() {
 	w.ErrorHandler = func(e error) {
 		log.Println(e)
 	}
-	w.AddServer("tcp4", "127.0.0.1:4730") //unsure about specs, copied from example
+	w.AddServer("tcp", ":1234") //unsure about specs, copied from example
 	w.AddFunc("Foobar", Foobar, worker.Unlimited)
 
 	if err := w.Ready(); err != nil {
@@ -47,5 +51,7 @@ func main() {
 		return
 	}
 	go w.Work()
+	signal.Bind(os.Interrupt, func() uint { return signal.BreakExit })
+	signal.Wait()
 
 }
