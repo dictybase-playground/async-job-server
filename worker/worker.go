@@ -2,13 +2,16 @@ package main
 
 import (
 	"log"
+	"strings"
 
 	"github.com/appscode/g2/worker"
 )
 
 // A function for handling jobs
 func Foobar(job worker.Job) ([]byte, error) {
-	return nil, nil
+	log.Printf("ToUpper: Data=[%s]\n", job.Data())
+	data := []byte(strings.ToUpper(string(job.Data())))
+	return data, nil
 }
 
 //blastp -db dicty_primary_protein -query test_query.fsa
