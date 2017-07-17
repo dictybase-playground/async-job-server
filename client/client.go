@@ -11,8 +11,11 @@ import (
 )
 
 type Arguments struct {
-	Database string `json:"database"`
-	Query    string `json:"query"`
+	Database string  `json:"database"`
+	Query    string  `json:"query"`
+	Evalue   float64 `json:"evalue"`
+	Numalign int     `json:"numalign"`
+	Wordsize int     `json:"wordsize"`
 }
 
 func main() {
@@ -40,13 +43,13 @@ func main() {
 		wg.Done()
 
 	}
-	// handle, err := c.Do("Foobar", echo, runtime.JobNormal, jobHandler)
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
+
 	a := &Arguments{
 		Database: "dicty_primary_protein",
 		Query:    "test_query.fsa",
+		Evalue:   0.1,
+		Numalign: 50,
+		Wordsize: 3,
 	}
 	args, err := json.Marshal(a)
 	if err != nil {
