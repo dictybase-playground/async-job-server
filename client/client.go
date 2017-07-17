@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"os"
 	"sync"
@@ -8,6 +9,11 @@ import (
 	"github.com/appscode/g2/client"
 	"github.com/appscode/g2/pkg/runtime"
 )
+
+type Arguments struct {
+	Database string `json:"database"`
+	Query    string `json:"query"`
+}
 
 func main() {
 	var wg sync.WaitGroup
@@ -34,10 +40,22 @@ func main() {
 		wg.Done()
 
 	}
-	handle, err := c.Do("Foobar", echo, runtime.JobNormal, jobHandler)
-	if err != nil {
-		log.Fatalln(err)
+	// handle, err := c.Do("Foobar", echo, runtime.JobNormal, jobHandler)
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	a := &Arguments{
+		Database: "dicty_primary_protein",
+		Query:    "test_query.fsa",
 	}
+	args, err := json.Marshal(a)
+	if err != nil {
+		log.Println("error marshaling")
+		log.Fatal(err)
+	}
+	log.Println(args)
+
+	handle, err := c.Do("Blastp", args, runtime.JobNormal, jobHandler)
 	wg.Add(1)
 
 	log.Println(string(handle))
