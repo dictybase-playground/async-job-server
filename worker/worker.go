@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -13,8 +12,9 @@ import (
 // A function for handling jobs
 func Foobar(job worker.Job) ([]byte, error) {
 	log.Printf("ToUpper: Data=[%s]\n", job.Data())
-	fmt.Println("in foobar")
 	data := []byte(strings.ToUpper(string(job.Data())))
+	log.Println(string(data))
+	log.Println(data)
 	return data, nil
 }
 
@@ -43,7 +43,12 @@ func main() {
 	w.ErrorHandler = func(e error) {
 		log.Println(e)
 	}
-	w.AddServer("tcp", ":1234") //unsure about specs, copied from example
+	w.JobHandler = func(job worker.Job) error {
+		log.Printf("H=%s, UID=%s, Data=%s", job.Handle,
+			job.UniqueId, job.Data)
+		return nil
+	}
+	w.AddServer("tcp", ":4730")
 	w.AddFunc("Foobar", Foobar, worker.Unlimited)
 
 	if err := w.Ready(); err != nil {

@@ -3,14 +3,15 @@ package main
 import (
 	"log"
 	"os"
+	"sync"
 
 	"github.com/appscode/g2/client"
 	"github.com/appscode/g2/pkg/runtime"
 )
 
 func main() {
-
-	c, err := client.New("tcp", ":1234")
+	var wg sync.WaitGroup
+	c, err := client.New("tcp", ":4730")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -24,19 +25,26 @@ func main() {
 	echomsg, err := c.Echo(echo)
 	if err != nil {
 		log.Fatalln(err)
+
 	}
 	log.Println(string(echomsg))
 
 	jobHandler := func(resp *client.Response) {
 		log.Printf("%s", resp.Data)
+		wg.Done()
+
 	}
 	handle, err := c.Do("Foobar", echo, runtime.JobNormal, jobHandler)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	wg.Add(1)
+
+	log.Println(string(handle))
 	status, err := c.Status(handle)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	log.Printf("%v", *status)
+	wg.Wait()
 }
