@@ -28,7 +28,7 @@ type Arguments struct {
 }
 ```
 
-## An example:
+### An example:
 ```
 a := &Arguments{
   Database: "dicty_primary_protein",
