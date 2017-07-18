@@ -6,7 +6,8 @@ Requirements:
 2. Gearman server installed http://gearman.org/getting-started/
 3. Download database http://dictybase.org/db/cgi-bin/dictyBase/download/blast_databases.pl
 4. Create database with
- ```makeblastdb -in dicty_primary_protein -dbtype prot
+ ```
+ makeblastdb -in dicty_primary_protein -dbtype prot
 ```
 Setup:
 1. Start gearmand server ```/usr/local/sbin/gearmand -L 127.0.0.1 -p 4730 --verbose INFO```
@@ -39,4 +40,11 @@ a := &Arguments{
   Seg:      true,
   //Gapped:   false,
 }
+```
+
+Note: The gapped flag is not working. I'm not sure if I'm passing the correct flag to blastp program, because
+I get the error
+```
+"BLAST query/options error: Composition-adjusted searched are not supported with an ungapped search, please add -comp_based_stats F or do a gapped search
+Please refer to the BLAST+ user manual."
 ```
