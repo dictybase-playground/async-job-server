@@ -1,4 +1,6 @@
-#Async Job Server
+# Async Job Server
+
+
 Requirements:
 1. Blastp installed https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download
 2. Gearman server installed http://gearman.org/getting-started/
@@ -12,7 +14,8 @@ Setup:
 
 Parameters:
 These are the paramaeters that should be sent via JSON to the worker:
-```type Arguments struct {
+```
+type Arguments struct {
 	Database string  `json:"database"`
 	Query    string  `json:"query"`
 	Evalue   float64 `json:"evalue"`
@@ -22,3 +25,17 @@ These are the paramaeters that should be sent via JSON to the worker:
 	Seg      bool    `json:"seg"`
 	Gapped   bool    `json:"gapped"`
 }```
+
+An example:
+```
+a := &Arguments{
+  Database: "dicty_primary_protein",
+  Query:    "test_query.fsa",
+  Evalue:   0.1,
+  Numalign: 50,
+  Wordsize: 3,
+  Matrix:   "PAM30",
+  Seg:      true,
+  //Gapped:   false,
+}
+```
