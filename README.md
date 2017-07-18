@@ -24,7 +24,8 @@ type Arguments struct {
 	Matrix   string  `json:"matrix"`
 	Seg      bool    `json:"seg"`
 	Gapped   bool    `json:"gapped"`
-}```
+}
+```
 
 An example:
 ```
