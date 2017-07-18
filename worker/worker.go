@@ -18,6 +18,8 @@ type Arguments struct {
 	Numalign int     `json:"numalign"`
 	Wordsize int     `json:"wordsize"`
 	Matrix   string  `json:"matrix"`
+	Seg      bool    `json:"seg"`
+	Gapped   bool    `json:"gapped"`
 }
 
 func Blastp(job worker.Job) ([]byte, error) {
@@ -28,7 +30,16 @@ func Blastp(job worker.Job) ([]byte, error) {
 		log.Fatal(err)
 	}
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
+
 	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
+	if args.Seg {
+		log.Println("seg working")
+		cmd.Args = append(cmd.Args, "-seg")
+		cmd.Args = append(cmd.Args, "yes")
+	}
+	// if !args.Gapped {
+	// 	cmd.Args = append(cmd.Args, "--ungapped")
+	// }
 	out, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)

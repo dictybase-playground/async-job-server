@@ -17,6 +17,8 @@ type Arguments struct {
 	Numalign int     `json:"numalign"`
 	Wordsize int     `json:"wordsize"`
 	Matrix   string  `json:"matrix"`
+	Seg      bool    `json:"seg"`
+	Gapped   bool    `json:"gapped"`
 }
 
 func main() {
@@ -52,6 +54,8 @@ func main() {
 		Numalign: 50,
 		Wordsize: 3,
 		Matrix:   "PAM30",
+		Seg:      true,
+		//Gapped:   false,
 	}
 	args, err := json.Marshal(a)
 	if err != nil {
