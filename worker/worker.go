@@ -11,6 +11,7 @@ import (
 	"github.com/mikespook/golib/signal"
 )
 
+//Arguments struct is the parameters that blastp takes
 type Arguments struct {
 	Database string  `json:"database"`
 	Query    string  `json:"query"`
@@ -22,6 +23,7 @@ type Arguments struct {
 	Gapped   bool    `json:"gapped"`
 }
 
+//Blastp runs the blastp program and returns result in job.Data
 func Blastp(job worker.Job) ([]byte, error) {
 	//unmarshal the Arguments
 	args := Arguments{}
