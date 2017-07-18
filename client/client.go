@@ -16,6 +16,7 @@ type Arguments struct {
 	Evalue   float64 `json:"evalue"`
 	Numalign int     `json:"numalign"`
 	Wordsize int     `json:"wordsize"`
+	Matrix   string  `json:"matrix"`
 }
 
 func main() {
@@ -50,6 +51,7 @@ func main() {
 		Evalue:   0.1,
 		Numalign: 50,
 		Wordsize: 3,
+		Matrix:   "PAM30",
 	}
 	args, err := json.Marshal(a)
 	if err != nil {

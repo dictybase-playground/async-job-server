@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 
 	"github.com/appscode/g2/worker"
 	"github.com/mikespook/golib/signal"
@@ -16,6 +17,7 @@ type Arguments struct {
 	Evalue   float64 `json:"evalue"`
 	Numalign int     `json:"numalign"`
 	Wordsize int     `json:"wordsize"`
+	Matrix   string  `json:"matrix"`
 }
 
 func Blastp(job worker.Job) ([]byte, error) {
@@ -25,7 +27,8 @@ func Blastp(job worker.Job) ([]byte, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query)
+	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
+	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
 	out, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)
