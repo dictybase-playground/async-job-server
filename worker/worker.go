@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/appscode/g2/worker"
-	"github.com/mikespook/golib/signal"
+	"github.com/urfave/cli"
 )
 
 //Arguments struct is the parameters that blastp takes
@@ -51,28 +51,60 @@ func Blastp(job worker.Job) ([]byte, error) {
 
 func main() {
 
-	log.Println("Starting ...")
-	defer log.Println("Shutdown complete!")
-	w := worker.New(worker.Unlimited)
-	defer w.Close()
-	w.ErrorHandler = func(e error) { //unsure if i need this function
-		log.Println(e)
-	}
-	w.JobHandler = func(job worker.Job) error { //or this function
-		log.Printf("H=%s, UID=%s, Data=%s", job.Handle,
-			job.UniqueId, job.Data)
-		return nil
-	}
+	app := cli.NewApp()
+	app.Version = "1.0.0"
+	app.Name = "BLAST worker"
+	app.Usage = "Run BLAST queries"
+	app.Commands = []cli.Command{
 
-	w.AddServer("tcp", ":4730")
-	w.AddFunc("Blastp", Blastp, worker.Unlimited)
-
-	if err := w.Ready(); err != nil {
-		log.Fatal(err)
-		return
+		{
+			Name:   "run",
+			Usage:  "Starts the worker",
+			Action: RunWorker,
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name:  "port, p",
+					Usage: "port the server is on",
+					Value: 4730,
+				},
+				cli.StringFlag{
+					Name:  "address, a",
+					Usage: "address the server is on, default localhost",
+					Value: "",
+				},
+				cli.StringFlag{
+					Name:  "protocol, pr",
+					Usage: "web protocol to use, default tcp",
+					Value: "tcp",
+				},
+				cli.StringSliceFlag{
+					Name:  "hooks",
+					Usage: "hook names for sending log in addition to stderr",
+					Value: &cli.StringSlice{},
+				},
+				cli.StringFlag{
+					Name:  "log-level",
+					Usage: "log level for the application",
+					Value: "error",
+				},
+				cli.StringFlag{
+					Name:   "slack-channel",
+					EnvVar: "SLACK_CHANNEL",
+					Usage:  "Slack channel where the log will be posted",
+				},
+				cli.StringFlag{
+					Name:   "slack-url",
+					EnvVar: "SLACK_URL",
+					Usage:  "Slack webhook url[required if slack channel is provided]",
+				},
+				cli.BoolFlag{
+					Name:   "use-logfile",
+					EnvVar: "USE_LOG_FILE",
+					Usage:  "Instead of stderr, write the script(s) log to a file",
+				},
+			},
+		},
 	}
-	go w.Work()
-	signal.Bind(os.Interrupt, func() uint { return signal.BreakExit })
-	signal.Wait()
+	app.Run(os.Args)
 
 }
