@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
 	"os/exec"
 	"strconv"
@@ -29,13 +28,12 @@ func Blastp(job worker.Job) ([]byte, error) {
 	args := Arguments{}
 	err := json.Unmarshal(job.Data(), &args)
 	if err != nil {
-		log.Fatal(err)
+		return []byte{}, err
 	}
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
 
 	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
 	if args.Seg {
-		log.Println("seg working")
 		cmd.Args = append(cmd.Args, "-seg")
 		cmd.Args = append(cmd.Args, "yes")
 	}
@@ -44,7 +42,7 @@ func Blastp(job worker.Job) ([]byte, error) {
 	// }
 	out, err := cmd.Output()
 	if err != nil {
-		log.Fatal(err)
+		return []byte{}, err
 	}
 	return out, nil
 }
