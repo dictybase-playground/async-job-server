@@ -1,12 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
-	"os/exec"
-	"strconv"
 
-	"github.com/appscode/g2/worker"
 	"github.com/urfave/cli"
 )
 
@@ -20,31 +16,6 @@ type Arguments struct {
 	Matrix   string  `json:"matrix"`
 	Seg      bool    `json:"seg"`
 	Gapped   bool    `json:"gapped"`
-}
-
-//Blastp runs the blastp program and returns result in job.Data
-func Blastp(job worker.Job) ([]byte, error) {
-	//unmarshal the Arguments
-	args := Arguments{}
-	err := json.Unmarshal(job.Data(), &args)
-	if err != nil {
-		return []byte{}, err
-	}
-	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-
-	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-	if args.Seg {
-		cmd.Args = append(cmd.Args, "-seg")
-		cmd.Args = append(cmd.Args, "yes")
-	}
-	// if !args.Gapped {
-	// 	cmd.Args = append(cmd.Args, "--ungapped")
-	// }
-	out, err := cmd.Output()
-	if err != nil {
-		return []byte{}, err
-	}
-	return out, nil
 }
 
 func main() {
