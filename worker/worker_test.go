@@ -11,42 +11,6 @@ import (
 	"github.com/appscode/g2/pkg/runtime"
 )
 
-//
-// //Blastp runs the blastp program and returns result in job.Data
-// import (
-// 	"encoding/json"
-// 	"log"
-// 	"os/exec"
-// 	"strconv"
-// 	"testing"
-//
-// 	"github.com/appscode/g2/worker"
-// )
-//
-// func Blastp(job worker.Job) ([]byte, error) {
-// 	//unmarshal the Arguments
-// 	args := Arguments{}
-// 	err := json.Unmarshal(job.Data(), &args)
-// 	if err != nil {
-// 		return []byte{}, err
-// 	}
-// 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-//
-// 	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-// 	if args.Seg {
-// 		cmd.Args = append(cmd.Args, "-seg")
-// 		cmd.Args = append(cmd.Args, "yes")
-// 	}
-// 	// if !args.Gapped {
-// 	// 	cmd.Args = append(cmd.Args, "--ungapped")
-// 	// }
-// 	out, err := cmd.Output()
-// 	if err != nil {
-// 		return []byte{}, err
-// 	}
-// 	return out, nil
-// }
-//
 func TestBlastp(t *testing.T) {
 	var wg sync.WaitGroup
 	c, err := client.New("tcp", ":4730")
