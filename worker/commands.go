@@ -41,6 +41,7 @@ func RunWorker(c *cli.Context) error {
 		args := Arguments{}
 		err := json.Unmarshal(job.Data(), &args)
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		log.WithFields(logrus.Fields{
@@ -66,6 +67,7 @@ func RunWorker(c *cli.Context) error {
 		// }
 		out, err := cmd.Output()
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		return out, nil
@@ -77,6 +79,7 @@ func RunWorker(c *cli.Context) error {
 		args := Arguments{}
 		err := json.Unmarshal(job.Data(), &args)
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		log.WithFields(logrus.Fields{
@@ -102,6 +105,7 @@ func RunWorker(c *cli.Context) error {
 		// }
 		out, err := cmd.Output()
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		return out, nil
@@ -113,6 +117,7 @@ func RunWorker(c *cli.Context) error {
 		args := Arguments{}
 		err := json.Unmarshal(job.Data(), &args)
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		log.WithFields(logrus.Fields{
@@ -138,6 +143,7 @@ func RunWorker(c *cli.Context) error {
 		// }
 		out, err := cmd.Output()
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		return out, nil
@@ -148,6 +154,7 @@ func RunWorker(c *cli.Context) error {
 		args := Arguments{}
 		err := json.Unmarshal(job.Data(), &args)
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		log.WithFields(logrus.Fields{
@@ -173,6 +180,7 @@ func RunWorker(c *cli.Context) error {
 		// }
 		out, err := cmd.Output()
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		return out, nil
@@ -183,6 +191,7 @@ func RunWorker(c *cli.Context) error {
 		args := Arguments{}
 		err := json.Unmarshal(job.Data(), &args)
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		log.WithFields(logrus.Fields{
@@ -208,6 +217,7 @@ func RunWorker(c *cli.Context) error {
 		// }
 		out, err := cmd.Output()
 		if err != nil {
+			log.Error(err)
 			return []byte{}, err
 		}
 		return out, nil
