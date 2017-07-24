@@ -4,7 +4,5 @@ dicty_primary_protein.phr
 dicty_primary_protein.pin
 dicty_primary_protein.psq
 results.out
-client
-worker
 /client
 mylogfile2.log

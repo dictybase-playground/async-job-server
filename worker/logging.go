@@ -17,7 +17,7 @@ func getLogger(c *cli.Context) *logrus.Logger {
 	}
 	log.Out = os.Stderr
 	if c.IsSet("use-logfile") {
-		w, err := os.OpenFile("mylogfile2.log", os.O_WRONLY|os.O_CREATE, 0666)
+		w, err := os.OpenFile("mylogfile.log", os.O_WRONLY|os.O_CREATE, 0666)
 		if err == nil {
 			log.Out = w
 		} else {
