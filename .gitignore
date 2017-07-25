@@ -5,4 +5,5 @@ dicty_primary_protein.pin
 dicty_primary_protein.psq
 results.out
 /client
+worker
 mylogfile2.log
