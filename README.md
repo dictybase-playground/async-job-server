@@ -1,5 +1,5 @@
 # Async Job Server
-
+A worker program for a gearman server that runs BLAST programs
 
 ## Requirements:
 1. Blastp installed https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=Download
