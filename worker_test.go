@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"os/exec"
 	"sync"
 	"testing"
 
@@ -23,12 +24,11 @@ func TestMain(m *testing.M) {
 	}
 
 	// pulls an image, creates a container based on it and runs it
-	resource, err := pool.RunWithOptions(&dockertest.RunOptions{Repository: "appscode/gearmand", Tag: "0.5.1", Cmd: []string{"-p 4730:4730", "run", "--v=5", "--storage-dir=/var/db"}, ExposedPorts: []string{"4730"}})
+	resource, err := pool.RunWithOptions(&dockertest.RunOptions{Repository: "appscode/gearmand", Tag: "0.5.1", Cmd: []string{"run", "--v=5", "--storage-dir=/var/db"}, ExposedPorts: []string{"4730"}})
 	if err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}
-	log.Println(resource.Container.NetworkSettings)
-	log.Println(resource.GetPort("4730/tcp"))
+
 	port = resource.GetPort("4730/tcp")
 	code := m.Run()
 
@@ -41,6 +41,13 @@ func TestMain(m *testing.M) {
 }
 
 func TestBlastp(t *testing.T) {
+	//start worker
+	cmd := exec.Command("async-job-server", "run", "-p", port)
+	err := cmd.Start()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	var wg sync.WaitGroup
 	c, err := client.New("tcp", ":"+port)
 	if err != nil {
