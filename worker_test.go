@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -29,7 +30,17 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not start resource: %s", err)
 	}
 
+	//port is dynamically assigned based on availability
 	port = resource.GetPort("4730/tcp")
+
+	//make database
+	makedb := exec.Command("makeblastdb", "-in", "dicty_primary_protein", "-dbtype", "prot")
+	err = makedb.Run()
+	if err != nil {
+		fmt.Println("error makin db")
+		log.Fatal(err)
+	}
+
 	code := m.Run()
 
 	// You can't defer this because os.Exit doesn't care for defer
@@ -37,15 +48,34 @@ func TestMain(m *testing.M) {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
 
+	//delete database
+	deletedb1 := exec.Command("rm", "dicty_primary_protein.phr")
+	deletedb2 := exec.Command("rm", "dicty_primary_protein.pin")
+	deletedb3 := exec.Command("rm", "dicty_primary_protein.psq")
+
+	err = deletedb1.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = deletedb2.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = deletedb3.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	os.Exit(code)
 }
 
 func TestBlastp(t *testing.T) {
+
 	//start worker
 	cmd := exec.Command("async-job-server", "run", "-p", port)
 	err := cmd.Start()
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 
 	var wg sync.WaitGroup
