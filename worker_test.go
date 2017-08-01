@@ -9,11 +9,40 @@ import (
 
 	"github.com/appscode/g2/client"
 	"github.com/appscode/g2/pkg/runtime"
+
+	dockertest "gopkg.in/ory-am/dockertest.v3"
 )
+
+var port string
+
+func TestMain(m *testing.M) {
+	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
+	pool, err := dockertest.NewPool("")
+	if err != nil {
+		log.Fatalf("Could not connect to docker: %s", err)
+	}
+
+	// pulls an image, creates a container based on it and runs it
+	resource, err := pool.RunWithOptions(&dockertest.RunOptions{Repository: "appscode/gearmand", Tag: "0.5.1", Cmd: []string{"-p 4730:4730", "run", "--v=5", "--storage-dir=/var/db"}, ExposedPorts: []string{"4730"}})
+	if err != nil {
+		log.Fatalf("Could not start resource: %s", err)
+	}
+	log.Println(resource.Container.NetworkSettings)
+	log.Println(resource.GetPort("4730/tcp"))
+	port = resource.GetPort("4730/tcp")
+	code := m.Run()
+
+	// You can't defer this because os.Exit doesn't care for defer
+	if err := pool.Purge(resource); err != nil {
+		log.Fatalf("Could not purge resource: %s", err)
+	}
+
+	os.Exit(code)
+}
 
 func TestBlastp(t *testing.T) {
 	var wg sync.WaitGroup
-	c, err := client.New("tcp", ":4730")
+	c, err := client.New("tcp", ":"+port)
 	if err != nil {
 		t.Fatal(err)
 	}
