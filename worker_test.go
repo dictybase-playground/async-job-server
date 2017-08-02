@@ -11,6 +11,8 @@ import (
 
 	"github.com/appscode/g2/client"
 	"github.com/appscode/g2/pkg/runtime"
+	"github.com/appscode/g2/worker"
+	"github.com/sirupsen/logrus"
 
 	dockertest "gopkg.in/ory-am/dockertest.v3"
 )
@@ -71,14 +73,24 @@ func TestMain(m *testing.M) {
 }
 
 func TestBlastp(t *testing.T) {
-
-	//start worker
-	cmd := exec.Command("async-job-server", "run", "-p", port)
-	err := cmd.Start()
-	if err != nil {
-		t.Fatal(err)
+	//set up logging to Stderr
+	log := logrus.New()
+	log.Formatter = &logrus.JSONFormatter{
+		TimestampFormat: "02/Jan/2006:15:04:05",
 	}
 
+	//start worker
+	env := &Env{logger: log}
+	w := worker.New(worker.Unlimited)
+	defer w.Close()
+	w.AddServer("tcp", ":"+port)
+	w.AddFunc("Blastp", env.Blastp, worker.Unlimited)
+	if err := w.Ready(); err != nil {
+		t.Fatal(err)
+	}
+	go w.Work()
+
+	//start client
 	var wg sync.WaitGroup
 	c, err := client.New("tcp", ":"+port)
 	if err != nil {
@@ -112,26 +124,13 @@ func TestBlastp(t *testing.T) {
 		log.Println("error marshaling")
 		t.Fatal(err)
 	}
-	log.Println(args)
-
-	handle, err := c.Do("Blastx", args, runtime.JobNormal, jobHandler)
-	if err != nil {
-		t.Fatal(err)
-	}
-	wg.Add(1)
-
-	status, err := c.Status(handle)
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.Printf("%v", *status)
 
 	handle2, err := c.Do("Blastp", args, runtime.JobNormal, jobHandler)
 	if err != nil {
 		t.Fatal(err)
 	}
 	wg.Add(1)
-	status, err = c.Status(handle2)
+	status, err := c.Status(handle2)
 	if err != nil {
 		t.Fatal(err)
 	}
