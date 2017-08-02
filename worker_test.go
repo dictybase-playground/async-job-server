@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"reflect"
 	"strconv"
 	"sync"
 	"testing"
@@ -127,12 +128,24 @@ func TestBlastp(t *testing.T) {
 			t.Fatal(err)
 		}
 		actual := resp.Data
-		var a string
+		var a interface{}
 		var e interface{}
 		err = json.Unmarshal(actual, &a)
+		if err != nil {
+			log.Print("error unmrashaling")
+			t.Fatal(err)
+		}
 		err = json.Unmarshal(expected, &e)
+		if err != nil {
+			log.Print("error unmrashaling")
+			t.Fatal(err)
+		}
+		eq := reflect.DeepEqual(a, e)
+		if !eq {
+			log.Print("actual != expected")
+			t.Fail()
+		}
 
-		log.Print(a)
 		wg.Done()
 
 	}
