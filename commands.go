@@ -1,10 +1,7 @@
 package main
 
 import (
-	"encoding/json"
 	"os"
-	"os/exec"
-	"strconv"
 
 	"github.com/appscode/g2/worker"
 	"github.com/mikespook/golib/signal"
@@ -12,9 +9,15 @@ import (
 	"github.com/urfave/cli"
 )
 
+//Env holds the logger that we pass to BLAST functions
+type Env struct {
+	logger *logrus.Logger
+}
+
 func RunWorker(c *cli.Context) error {
 
-	log := getLogger(c)
+	env := &Env{logger: getLogger(c)}
+	log := env.logger
 
 	log.Info("Starting ...")
 	defer log.Info("Shutdown complete!")
@@ -35,193 +38,6 @@ func RunWorker(c *cli.Context) error {
 
 		return nil
 	}
-	//Blastn runs the blastx program and returns result in job.Data
-	Blastn := func(job worker.Job) ([]byte, error) {
-		//unmarshal the Arguments
-		args := Arguments{}
-		err := json.Unmarshal(job.Data(), &args)
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		log.WithFields(logrus.Fields{
-			"program":  "Blastn",
-			"database": args.Database,
-			"query":    args.Query,
-			"evalue":   args.Evalue,
-			"numalign": args.Numalign,
-			"wordsize": args.Wordsize,
-			"matrix":   args.Matrix,
-			"seg":      args.Seg,
-			"gapped":   args.Gapped,
-		}).Info("Parameters")
-		evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-
-		cmd := exec.Command("blastn", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-		if args.Seg {
-			cmd.Args = append(cmd.Args, "-seg")
-			cmd.Args = append(cmd.Args, "yes")
-		}
-		// if !args.Gapped {
-		// 	cmd.Args = append(cmd.Args, "--ungapped")
-		// }
-		out, err := cmd.Output()
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		return out, nil
-	}
-
-	//Blastp runs the blastp program and returns result in job.Data
-	Blastp := func(job worker.Job) ([]byte, error) {
-		//unmarshal the Arguments
-		args := Arguments{}
-		err := json.Unmarshal(job.Data(), &args)
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		log.WithFields(logrus.Fields{
-			"program":  "Blastp",
-			"database": args.Database,
-			"query":    args.Query,
-			"evalue":   args.Evalue,
-			"numalign": args.Numalign,
-			"wordsize": args.Wordsize,
-			"matrix":   args.Matrix,
-			"seg":      args.Seg,
-			"gapped":   args.Gapped,
-		}).Info("Parameters")
-		evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-
-		cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-		if args.Seg {
-			cmd.Args = append(cmd.Args, "-seg")
-			cmd.Args = append(cmd.Args, "yes")
-		}
-		// if !args.Gapped {
-		// 	cmd.Args = append(cmd.Args, "--ungapped")
-		// }
-		out, err := cmd.Output()
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		return out, nil
-	}
-
-	//Blastx runs the blastx program and returns result in job.Data
-	Blastx := func(job worker.Job) ([]byte, error) {
-		//unmarshal the Arguments
-		args := Arguments{}
-		err := json.Unmarshal(job.Data(), &args)
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		log.WithFields(logrus.Fields{
-			"program":  "Blastx",
-			"database": args.Database,
-			"query":    args.Query,
-			"evalue":   args.Evalue,
-			"numalign": args.Numalign,
-			"wordsize": args.Wordsize,
-			"matrix":   args.Matrix,
-			"seg":      args.Seg,
-			"gapped":   args.Gapped,
-		}).Info("Parameters")
-		evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-
-		cmd := exec.Command("blastx", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-		if args.Seg {
-			cmd.Args = append(cmd.Args, "-seg")
-			cmd.Args = append(cmd.Args, "yes")
-		}
-		// if !args.Gapped {
-		// 	cmd.Args = append(cmd.Args, "--ungapped")
-		// }
-		out, err := cmd.Output()
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		return out, nil
-	}
-	//Tblastx runs the blastx program and returns result in job.Data
-	Tblastx := func(job worker.Job) ([]byte, error) {
-		//unmarshal the Arguments
-		args := Arguments{}
-		err := json.Unmarshal(job.Data(), &args)
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		log.WithFields(logrus.Fields{
-			"program":  "Tblastx",
-			"database": args.Database,
-			"query":    args.Query,
-			"evalue":   args.Evalue,
-			"numalign": args.Numalign,
-			"wordsize": args.Wordsize,
-			"matrix":   args.Matrix,
-			"seg":      args.Seg,
-			"gapped":   args.Gapped,
-		}).Info("Parameters")
-		evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-
-		cmd := exec.Command("tblastx", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-		if args.Seg {
-			cmd.Args = append(cmd.Args, "-seg")
-			cmd.Args = append(cmd.Args, "yes")
-		}
-		// if !args.Gapped {
-		// 	cmd.Args = append(cmd.Args, "--ungapped")
-		// }
-		out, err := cmd.Output()
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		return out, nil
-	}
-	//Tblastn runs the blastx program and returns result in job.Data
-	Tblastn := func(job worker.Job) ([]byte, error) {
-		//unmarshal the Arguments
-		args := Arguments{}
-		err := json.Unmarshal(job.Data(), &args)
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		log.WithFields(logrus.Fields{
-			"program":  "Tblastn",
-			"database": args.Database,
-			"query":    args.Query,
-			"evalue":   args.Evalue,
-			"numalign": args.Numalign,
-			"wordsize": args.Wordsize,
-			"matrix":   args.Matrix,
-			"seg":      args.Seg,
-			"gapped":   args.Gapped,
-		}).Info("Parameters")
-		evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
-
-		cmd := exec.Command("tblastn", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
-		if args.Seg {
-			cmd.Args = append(cmd.Args, "-seg")
-			cmd.Args = append(cmd.Args, "yes")
-		}
-		// if !args.Gapped {
-		// 	cmd.Args = append(cmd.Args, "--ungapped")
-		// }
-		out, err := cmd.Output()
-		if err != nil {
-			log.Error(err)
-			return []byte{}, err
-		}
-		return out, nil
-	}
 
 	address := c.String("address") + ":" + c.String("port")
 	w.AddServer(c.String("protocol"), address)
@@ -231,11 +47,11 @@ func RunWorker(c *cli.Context) error {
 		"port":    c.String("port"),
 	}).Info("address worker pointed at")
 
-	w.AddFunc("Blastn", Blastn, worker.Unlimited)
-	w.AddFunc("Blastp", Blastp, worker.Unlimited)
-	w.AddFunc("Blastx", Blastx, worker.Unlimited)
-	w.AddFunc("Tblastx", Tblastx, worker.Unlimited)
-	w.AddFunc("Tblastn", Tblastn, worker.Unlimited)
+	w.AddFunc("Blastn", env.Blastn, worker.Unlimited)
+	w.AddFunc("Blastp", env.Blastp, worker.Unlimited)
+	w.AddFunc("Blastx", env.Blastx, worker.Unlimited)
+	w.AddFunc("Tblastx", env.Tblastx, worker.Unlimited)
+	w.AddFunc("Tblastn", env.Tblastn, worker.Unlimited)
 
 	if err := w.Ready(); err != nil {
 		log.Error(err)

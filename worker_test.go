@@ -41,6 +41,7 @@ func TestMain(m *testing.M) {
 		log.Fatal(err)
 	}
 
+	//runs all the other tests
 	code := m.Run()
 
 	// You can't defer this because os.Exit doesn't care for defer
