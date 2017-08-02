@@ -54,22 +54,10 @@ func TestMain(m *testing.M) {
 	}
 
 	//delete database
-	deletedb1 := exec.Command("rm", "dicty_primary_protein.phr")
-	deletedb2 := exec.Command("rm", "dicty_primary_protein.pin")
-	deletedb3 := exec.Command("rm", "dicty_primary_protein.psq")
 
-	err = deletedb1.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = deletedb2.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
-	err = deletedb3.Run()
-	if err != nil {
-		log.Fatal(err)
-	}
+	os.Remove("dicty_primary_protein.phr")
+	os.Remove("dicty_primary_protein.pin")
+	os.Remove("dicty_primary_protein.psq")
 
 	os.Exit(code)
 }
