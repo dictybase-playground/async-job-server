@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"sync"
 	"testing"
 
@@ -73,15 +74,10 @@ func TestMain(m *testing.M) {
 }
 
 func TestBlastp(t *testing.T) {
-	//set up logging to Stderr
-	log := logrus.New()
-	log.Formatter = &logrus.JSONFormatter{
-		TimestampFormat: "02/Jan/2006:15:04:05",
-	}
-
 	//start worker
+	log := logrus.New()
 	env := &Env{logger: log}
-	w := worker.New(worker.Unlimited)
+	w := worker.New(1)
 	defer w.Close()
 	w.AddServer("tcp", ":"+port)
 	w.AddFunc("Blastp", env.Blastp, worker.Unlimited)
@@ -98,17 +94,6 @@ func TestBlastp(t *testing.T) {
 	}
 	defer c.Close()
 
-	c.ErrorHandler = func(e error) {
-		t.Fatal(e)
-		os.Exit(1)
-	}
-
-	jobHandler := func(resp *client.Response) {
-		log.Printf("%s", resp.Data)
-		wg.Done()
-
-	}
-
 	a := &Arguments{
 		Database: "dicty_primary_protein",
 		Query:    "test_query.fsa",
@@ -119,12 +104,38 @@ func TestBlastp(t *testing.T) {
 		Seg:      true,
 		//Gapped:   false,
 	}
+
 	args, err := json.Marshal(a)
 	if err != nil {
 		log.Println("error marshaling")
 		t.Fatal(err)
 	}
+	c.ErrorHandler = func(e error) {
+		t.Fatal(e)
+		os.Exit(1)
+	}
 
+	jobHandler := func(resp *client.Response) {
+		expectcmd := exec.Command("blastp", "-db", a.Database, "-query", a.Query, "-evalue", strconv.FormatFloat(a.Evalue, 'f', -1, 64), "-num_alignments", string(a.Numalign), "-matrix", a.Matrix, "-outfmt", "15")
+		if a.Seg {
+			expectcmd.Args = append(expectcmd.Args, "-seg")
+			expectcmd.Args = append(expectcmd.Args, "yes")
+		}
+		expected, err := expectcmd.Output()
+		if err != nil {
+			log.Print("error with expected...")
+			t.Fatal(err)
+		}
+		actual := resp.Data
+		var a string
+		var e interface{}
+		err = json.Unmarshal(actual, &a)
+		err = json.Unmarshal(expected, &e)
+
+		log.Print(a)
+		wg.Done()
+
+	}
 	handle2, err := c.Do("Blastp", args, runtime.JobNormal, jobHandler)
 	if err != nil {
 		t.Fatal(err)

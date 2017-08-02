@@ -31,7 +31,7 @@ func (env *Env) Blastn(job worker.Job) ([]byte, error) {
 	}).Info("Parameters")
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
 
-	cmd := exec.Command("blastn", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
+	cmd := exec.Command("blastn", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix, "-outfmt", "15")
 	if args.Seg {
 		cmd.Args = append(cmd.Args, "-seg")
 		cmd.Args = append(cmd.Args, "yes")
@@ -70,7 +70,7 @@ func (env *Env) Blastp(job worker.Job) ([]byte, error) {
 	}).Info("Parameters")
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
 
-	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
+	cmd := exec.Command("blastp", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix, "-outfmt", "15")
 	if args.Seg {
 		cmd.Args = append(cmd.Args, "-seg")
 		cmd.Args = append(cmd.Args, "yes")
@@ -109,7 +109,7 @@ func (env *Env) Blastx(job worker.Job) ([]byte, error) {
 	}).Info("Parameters")
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
 
-	cmd := exec.Command("blastx", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
+	cmd := exec.Command("blastx", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix, "-outfmt", "15")
 	if args.Seg {
 		cmd.Args = append(cmd.Args, "-seg")
 		cmd.Args = append(cmd.Args, "yes")
@@ -148,7 +148,7 @@ func (env *Env) Tblastx(job worker.Job) ([]byte, error) {
 	}).Info("Parameters")
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
 
-	cmd := exec.Command("tblastx", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
+	cmd := exec.Command("tblastx", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix, "-outfmt", "15")
 	if args.Seg {
 		cmd.Args = append(cmd.Args, "-seg")
 		cmd.Args = append(cmd.Args, "yes")
@@ -187,7 +187,7 @@ func (env *Env) Tblastn(job worker.Job) ([]byte, error) {
 	}).Info("Parameters")
 	evalue := strconv.FormatFloat(args.Evalue, 'f', -1, 64)
 
-	cmd := exec.Command("tblastn", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix)
+	cmd := exec.Command("tblastn", "-db", args.Database, "-query", args.Query, "-evalue", evalue, "-num_alignments", string(args.Numalign), "-matrix", args.Matrix, "-outfmt", "15")
 	if args.Seg {
 		cmd.Args = append(cmd.Args, "-seg")
 		cmd.Args = append(cmd.Args, "yes")
