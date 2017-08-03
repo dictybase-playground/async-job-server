@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -22,6 +21,7 @@ import (
 var port string
 
 func TestMain(m *testing.M) {
+
 	// uses a sensible default on windows (tcp/http) and linux/osx (socket)
 	pool, err := dockertest.NewPool("")
 	if err != nil {
@@ -41,8 +41,7 @@ func TestMain(m *testing.M) {
 	makedb := exec.Command("makeblastdb", "-in", "dicty_primary_protein", "-dbtype", "prot")
 	err = makedb.Run()
 	if err != nil {
-		fmt.Println("error makin db")
-		log.Fatal(err)
+		log.Fatalf("Error creating database: %s", err)
 	}
 
 	//runs all the other tests
@@ -71,7 +70,7 @@ func TestBlastp(t *testing.T) {
 	w.AddServer("tcp", ":"+port)
 	w.AddFunc("Blastp", env.Blastp, worker.Unlimited)
 	if err := w.Ready(); err != nil {
-		t.Fatal(err)
+		t.Fatalf("Error starting worker:%s", err)
 	}
 	go w.Work()
 
@@ -79,7 +78,7 @@ func TestBlastp(t *testing.T) {
 	var wg sync.WaitGroup
 	c, err := client.New("tcp", ":"+port)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Error starting client: %s", err)
 	}
 	defer c.Close()
 
@@ -96,14 +95,14 @@ func TestBlastp(t *testing.T) {
 
 	args, err := json.Marshal(a)
 	if err != nil {
-		log.Println("error marshaling")
-		t.Fatal(err)
+		t.Fatalf("Error marshaling data: %s", err)
 	}
 	c.ErrorHandler = func(e error) {
 		t.Fatal(e)
 		os.Exit(1)
 	}
 
+	//jobHandler gets the result from the worker and checks if its what is expected
 	jobHandler := func(resp *client.Response) {
 		expectcmd := exec.Command("blastp", "-db", a.Database, "-query", a.Query, "-evalue", strconv.FormatFloat(a.Evalue, 'f', -1, 64), "-num_alignments", string(a.Numalign), "-matrix", a.Matrix, "-outfmt", "15")
 		if a.Seg {
@@ -112,40 +111,32 @@ func TestBlastp(t *testing.T) {
 		}
 		expected, err := expectcmd.Output()
 		if err != nil {
-			log.Print("error with expected...")
-			t.Fatal(err)
+			t.Fatalf("Error getting expected output: %s", err)
 		}
 		actual := resp.Data
 		var a interface{}
 		var e interface{}
 		err = json.Unmarshal(actual, &a)
 		if err != nil {
-			log.Print("error unmrashaling")
-			t.Fatal(err)
+			t.Fatalf("Error unmrashaling: %s", err)
 		}
 		err = json.Unmarshal(expected, &e)
 		if err != nil {
-			log.Print("error unmrashaling")
-			t.Fatal(err)
+			t.Fatalf("Error unmrashaling: %s", err)
+
 		}
 		eq := reflect.DeepEqual(a, e)
 		if !eq {
-			log.Print("actual != expected")
-			t.Fail()
+			t.Fatalf("Actual result from Blastp does not equal expect result")
 		}
 
 		wg.Done()
 
 	}
-	handle2, err := c.Do("Blastp", args, runtime.JobNormal, jobHandler)
+	_, err = c.Do("Blastp", args, runtime.JobNormal, jobHandler)
 	if err != nil {
-		t.Fatal(err)
+		t.Fatalf("Error sending job to worker: %s", err)
 	}
 	wg.Add(1)
-	status, err := c.Status(handle2)
-	if err != nil {
-		t.Fatal(err)
-	}
-	log.Printf("%v", *status)
 	wg.Wait()
 }
